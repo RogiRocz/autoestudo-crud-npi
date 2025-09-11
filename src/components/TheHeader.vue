@@ -2,26 +2,30 @@
   <v-app-bar app>
     <v-toolbar-title>Gerenciamento de Produtos</v-toolbar-title>
 
-    <v-tabs v-model="tab" align-with-title>
-      <v-tab value="cadastrar">Cadastrar</v-tab>
-      <v-tab value="editar">Editar</v-tab>
-      <v-tab value="excluir">Excluir</v-tab>
+    <v-tabs v-model="selectedTab" align-with-title>
+      <v-tab v-for="(tab, i) in tabs" :key="i" :value="tab">{{ tab }}</v-tab>
     </v-tabs>
   </v-app-bar>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watchEffect } from 'vue'
 
-const tab = ref(null)
+type TabValue = 'listar' | 'cadastrar' | 'editar' | 'excluir'
+
+const tabs: TabValue[] = ['listar', 'cadastrar', 'editar', 'excluir']
+
+const emits = defineEmits(['update:tabActived'])
+
+const selectedTab = ref<TabValue>('listar')
 
 watchEffect(() => {
-  if (tab.value) {
-    console.log(tab.value)
+  if (selectedTab.value) {
+    emits('update:tabActived', selectedTab.value)
   }
 })
 </script>
 
 <style scoped>
-/* Add any header-specific styles here */
+
 </style>
