@@ -1,11 +1,8 @@
 // src/plugins/vuetify.ts
+import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
 
-const vuetify = createVuetify({
-  components,
-  directives,
-})
+// autoImport: true in vite.config.ts will handle component importing
+const vuetify = createVuetify()
 
 export default vuetify
