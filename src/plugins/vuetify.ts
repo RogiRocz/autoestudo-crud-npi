@@ -1,8 +1,13 @@
-// src/plugins/vuetify.ts
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
+import { createVuetify } from 'vuetify';
+import 'vuetify/styles';
+import { aliases, mdi } from 'vuetify/iconsets/mdi';
 
-// autoImport: true in vite.config.ts will handle component importing
-const vuetify = createVuetify()
-
-export default vuetify
+export default createVuetify({
+  icons: {
+    defaultSet: 'mdi',
+    aliases,
+    sets: {
+      mdi,
+    },
+  },
+});

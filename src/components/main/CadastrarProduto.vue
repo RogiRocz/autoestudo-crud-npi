@@ -1,4 +1,10 @@
 <template>
+	<v-alert
+	color="success"
+	v-if="alertSuccess"
+	closable
+	type="success"
+	text="Produto criado com sucesso!"></v-alert>
 	<v-form @submit.prevent="sendProduct">
 		<v-container>
 			<v-row>
@@ -17,6 +23,7 @@
 						control-variant="split"
 						required
 						:rules="[rules.isPositive]"
+						:precision="2"
 					></v-number-input>
 				</v-col>
 				<v-col cols="12">
@@ -48,17 +55,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { createProduct } from '../../api/ProductEndpoints.ts'
+import rules from '../../utils/rulesInput.ts'
 
 const productName = ref('')
 const productPrice = ref(0)
 const productCategory = ref('')
 const loading = ref(false)
-
-const rules = {
-	size: (v: string) =>
-		v.length > 3 ? true : 'O campo deve ter mais de 3 letras',
-	isPositive: (v: number) => (v > 0 ? true : 'O campo deve ser maior que zero'),
-}
+const alertSuccess = ref(false)
 
 function simulateLoading() {
 	loading.value = true
@@ -74,13 +77,23 @@ async function sendProduct(){
 		category: productCategory.value
 	}
 	try {
-		const {data} = await createProduct(newProduct)
-		console.log(data)
+		await createProduct(newProduct);
+		alertSuccess.value = true;
+		productName.value = '';
+		productPrice.value = 0;
+		productCategory.value = '';
+
+		setTimeout(() => {
+			alertSuccess.value = false;
+		}, 3000);
 	} catch (error) {
-		console.log(error)
+		console.error("Erro ao criar produto:", error);
 	}
 }
-
 </script>
 
-<style scoped></style>
+<style scoped>
+	.v-number-input {
+		width: 100%;
+	}
+</style>

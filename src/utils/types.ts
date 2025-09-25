@@ -5,6 +5,13 @@ interface Product {
     category: string;
 }
 
+interface Page<T> {
+    content: T[];
+    totalPages: number;
+    number: number;
+}
+
 export type {
-    Product
+    Product,
+    Page
 }
