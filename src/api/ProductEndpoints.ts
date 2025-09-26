@@ -15,12 +15,7 @@ async function getAllProducts(page: number = 0, size: number = 20, sort: string 
 	if (sort){
 		sort.split('&').forEach(arg => {
 			let [att, ord] = arg;
-			const p: Product = {
-				id: "",
-				name: "",
-				price: 0,
-				category: ""
-			};
+			const p: Product = {} as Product;
 			const keysOfProduct = Object.keys(p);
 			if(keysOfProduct.includes(att)){
 				ord = ord.substring(0, 3);

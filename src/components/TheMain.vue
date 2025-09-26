@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, watch } from "vue";
+import { computed, ref, onMounted, onUnmounted, watch, inject, type Ref } from "vue";
 import CadastrarProduto from "./main/CadastrarProduto.vue";
 import EditarProduto from "./main/EditarProduto.vue";
 import ExcluirProduto from "./main/ExcluirProduto.vue";
@@ -44,6 +44,7 @@ const currentPage = ref(1);
 const totalPages = ref(0);
 const loading = ref(false);
 let realtimeChannel: RealtimeChannel | null = null;
+const sort = inject<Ref<string | undefined>>('sortParams');
 
 const components = {
 	listar: ListarProduto,
@@ -51,6 +52,7 @@ const components = {
 	editar: EditarProduto,
 	excluir: ExcluirProduto,
 };
+
 const activeComponent = computed(() => components[props.tabActived]);
 
 const loadProducts = async () => {
@@ -59,6 +61,7 @@ const loadProducts = async () => {
 		const response = await getAllProducts(
 			currentPage.value - 1,
 			props.itemsPerPage,
+			sort?.value
 		);
 		products.value = response.content;
 		
@@ -83,7 +86,7 @@ const handleRealtimeSupabase = () => {
 	loadProducts();
 };
 
-watch(currentPage, () => {
+watch([currentPage, sort], () => {
 	loadProducts();
 });
 
@@ -94,6 +97,8 @@ watch(
 		loadProducts();
 	},
 );
+
+
 
 onMounted(() => {
 	loadProducts();

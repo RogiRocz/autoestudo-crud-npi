@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { provide, ref } from 'vue'
 import TheHeader from './components/TheHeader.vue'
 import TheMain from './components/TheMain.vue'
 import TheFooter from './components/TheFooter.vue';
@@ -16,6 +16,7 @@ type Tab = 'listar' | 'cadastrar' | 'editar' | 'excluir';
 
 const activeTab = ref<Tab>('listar');
 const itemsPerPage = ref(10);
+const sortParams = ref<string>('');
 
 const changeTab = (tab: Tab) => {
   activeTab.value = tab;
@@ -24,4 +25,11 @@ const changeTab = (tab: Tab) => {
 const changeItemsPerPage = (itemsQuantity: number)  => {
   itemsPerPage.value = itemsQuantity;  
 }
+
+const changeSortParams = (newParams: string) => {  
+  sortParams.value = newParams
+}
+
+provide('sortParams', sortParams);
+provide('changeSortParams', changeSortParams);
 </script>
