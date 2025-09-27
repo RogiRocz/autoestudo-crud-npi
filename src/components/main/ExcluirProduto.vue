@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <!-- Alerta de Sucesso -->
-    <v-alert v-if="alertSuccess" closable color="info" text="Produto deletado com sucesso!"></v-alert>
+    <v-alert v-if="alertSuccess" closable type="success" :text="textValert"></v-alert>
 
     <!-- Lista de Produtos para Exclusão -->
     <v-list v-if="!loading">
@@ -29,7 +29,7 @@
                       <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn text="Cancelar" @click="isActive.value = false"></v-btn>
-                        <v-btn color="error" variant="flat" text="Excluir" @click="confirmDelete(isActive, Number(p.id))"></v-btn>
+                        <v-btn color="error" variant="flat" text="Excluir" @click="confirmDelete(isActive, Number(p.id), (itemsPerPage * (currentPage - 1)) + (i + 1))"></v-btn>
                       </v-card-actions>
                     </v-card>
                   </template>
@@ -74,13 +74,14 @@ const emit = defineEmits<{
 
 const deleteLoading = ref(false);
 const alertSuccess = ref(false);
+const textValert = ref('');
 
 const page = computed({
   get: () => props.currentPage,
   set: (newPage) => emit("update:currentPage", newPage),
 });
 
-async function confirmDelete(isActive: Ref, id: number) {
+async function confirmDelete(isActive: Ref, id: number, index: number) {
   deleteLoading.value = true;
   try {
     await deleteProduct(id);
@@ -88,6 +89,11 @@ async function confirmDelete(isActive: Ref, id: number) {
     console.log("Erro ao deletar produto:", error);
   } finally {
     deleteLoading.value = false;
+    alertSuccess.value = true;
+    textValert.value = `Produto ${index} deletado com sucesso!`;
+    setTimeout(() => {
+      alertSuccess.value = false;
+    }, 2000);
     isActive.value = false;
   }
 
