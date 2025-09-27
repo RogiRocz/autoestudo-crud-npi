@@ -17,7 +17,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, watch, inject, type Ref } from "vue";
+import {
+	computed,
+	ref,
+	onMounted,
+	onUnmounted,
+	watch,
+	inject,
+	type Ref,
+} from "vue";
 import CadastrarProduto from "./main/CadastrarProduto.vue";
 import EditarProduto from "./main/EditarProduto.vue";
 import ExcluirProduto from "./main/ExcluirProduto.vue";
@@ -25,7 +33,11 @@ import ListarProduto from "./main/ListarProduto.vue";
 
 import { supabase } from "../utils/supabase";
 import type { Product } from "../utils/types";
-import { getAllProducts } from "../api/ProductEndpoints";
+import {
+	getAllProducts,
+	searchCategory,
+	searchProductName,
+} from "../api/ProductEndpoints";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 const props = withDefaults(
@@ -44,7 +56,8 @@ const currentPage = ref(1);
 const totalPages = ref(0);
 const loading = ref(false);
 let realtimeChannel: RealtimeChannel | null = null;
-const sort = inject<Ref<string | undefined>>('sortParams');
+const sort = inject<Ref<string | undefined>>("sortParams", ref(""));
+const searchQuery = inject<Ref<string | undefined>>("searchQuery", ref(""));
 
 const components = {
 	listar: ListarProduto,
@@ -58,19 +71,57 @@ const activeComponent = computed(() => components[props.tabActived]);
 const loadProducts = async () => {
 	loading.value = true;
 	try {
-		const response = await getAllProducts(
-			currentPage.value - 1,
-			props.itemsPerPage,
-			sort?.value
-		);
-		products.value = response.content;
-		
-		if(currentPage.value > response.totalPages){
-			currentPage.value = response.totalPages || 1;
+		const [targetOfSearch, searchWord] = searchQuery.value ? searchQuery.value.split(':') : ['Produto', ''];
+
+		if(searchWord == '') {
+			const response = await getAllProducts(
+				currentPage.value - 1,
+				props.itemsPerPage,
+				sort.value,
+			);
+			
+			products.value = response.content ? response.content : products.value;
+
+			if (currentPage.value > response.totalPages) {
+				currentPage.value = response.totalPages || 1;
+			}
+			totalPages.value = response.totalPages;
+
+			return;
 		}
-		totalPages.value = response.totalPages;
+		
+
+		if (targetOfSearch == "Produto") {
+			const response = await searchProductName(
+				currentPage.value - 1,
+				props.itemsPerPage,
+				sort.value,
+				searchWord,
+			);
+
+			products.value = response.content ? response.content : products.value;
+
+			if (currentPage.value > response.totalPages) {
+				currentPage.value = response.totalPages || 1;
+			}
+			totalPages.value = response.totalPages;
+		} else {
+			const response = await searchCategory(
+				currentPage.value - 1,
+				props.itemsPerPage,
+				sort.value,
+				searchWord,
+			);
+
+			products.value = response.content ? response.content : products.value;
+
+			if (currentPage.value > response.totalPages) {
+				currentPage.value = response.totalPages || 1;
+			}
+			totalPages.value = response.totalPages;
+		}
 	} catch (error) {
-		console.error("Erro ao carregar produtos:", error);
+		console.log("Erro ao procurar produtos: ", error);
 	} finally {
 		loading.value = false;
 	}
@@ -86,6 +137,10 @@ const handleRealtimeSupabase = () => {
 	loadProducts();
 };
 
+watch([searchQuery], () => {
+	loadProducts();
+});
+
 watch([currentPage, sort], () => {
 	loadProducts();
 });
@@ -97,8 +152,6 @@ watch(
 		loadProducts();
 	},
 );
-
-
 
 onMounted(() => {
 	loadProducts();

@@ -17,6 +17,7 @@ type Tab = 'listar' | 'cadastrar' | 'editar' | 'excluir';
 const activeTab = ref<Tab>('listar');
 const itemsPerPage = ref(10);
 const sortParams = ref<string>('');
+const searchQuery = ref<string>('');
 
 const changeTab = (tab: Tab) => {
   activeTab.value = tab;
@@ -30,6 +31,12 @@ const changeSortParams = (newParams: string) => {
   sortParams.value = newParams
 }
 
+const research = (query: string) => {
+  searchQuery.value = query;
+}
+
 provide('sortParams', sortParams);
 provide('changeSortParams', changeSortParams);
+provide('searchQuery', searchQuery);
+provide('research', research);
 </script>

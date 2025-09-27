@@ -1,6 +1,41 @@
 import type { Product, Page } from "../utils/types";
 import api from "./apiConnect";
 
+async function searchProductName(
+	page: number = 0,
+	size: number = 20,
+	sort: string = "id,asc",
+	word: string,
+) {
+	const response = await api.get("/products/search", {
+		params: {
+			page,
+			size,
+			sort,
+			name: word,
+		},
+	});
+
+	return response.data;
+}
+
+async function searchCategory(
+	page: number = 0,
+	size: number = 20,
+	sort: string = "id,asc",
+	word: string,
+) {
+	const response = await api.get("/products/search", {
+		params: {
+			page,
+			size,
+			sort,
+			category: word,
+		},
+	});
+	return response.data;
+}
+
 async function createProduct(product: any): Promise<Product> {
 	const response = await api.post("products", product);
 	return response.data;
@@ -11,34 +46,25 @@ async function getProductById(id: number): Promise<Product> {
 	return response.data;
 }
 
-async function getAllProducts(page: number = 0, size: number = 20, sort: string = 'id,asc'): Promise<Page<Product>> {
-	if (sort){
-		sort.split('&').forEach(arg => {
-			let [att, ord] = arg;
-			const p: Product = {} as Product;
-			const keysOfProduct = Object.keys(p);
-			if(keysOfProduct.includes(att)){
-				ord = ord.substring(0, 3);
-				if(ord === "asc" || ord === "desc"){
-					sort = `${att},${ord}`;
-				}
-			}
-		});
-	}else{
-		sort = "id,asc";
-	}
-
+async function getAllProducts(
+	page: number = 0,
+	size: number = 20,
+	sort: string = "id,asc",
+): Promise<Page<Product>> {
 	const response = await api.get("products", {
 		params: {
 			page,
 			size,
-			sort
+			sort,
 		},
 	});
 	return response.data;
 }
 
-async function updateProduct(id: number, newProduct: Product): Promise<Product> {
+async function updateProduct(
+	id: number,
+	newProduct: Product,
+): Promise<Product> {
 	const response = await api.put(`products/${id}`, newProduct);
 	return response.data;
 }
@@ -54,4 +80,6 @@ export {
 	getAllProducts,
 	updateProduct,
 	deleteProduct,
+	searchProductName,
+	searchCategory,
 };
